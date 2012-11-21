@@ -1,0 +1,116 @@
+<project name="helloworld-proj" default="compile.all" basedir=".">
+
+  <target name="init">
+    <tstamp/>
+
+    <property name="main.src.dir"     value="src/main"/>
+    <property name="test.src.dir"     value="src/test"/>
+    <property name="main.build.dir"   value="build/main"/>
+    <property name="test.build.dir"   value="build/test"/>
+    <property name="lib.dir"          value="lib"/>
+    <property name="dist.dir"         value="dist"/>
+    <property name="junit.report.dir" value="test_report"/>
+
+
+    <property name="compile.debug"       value="true"/>
+    <property name="compile.optimize"    value="true"/>
+    <property name="compile.target"      value="1.6" />
+    <property name="compile.source"      value="1.6" />
+    <property name="compile.deprecation" value="true"/>
+
+    <path id="main.compile.classpath">
+      <!--
+      <fileset dir="${lib.dir}">
+        <include name="*.jar" />
+      </fileset>
+      -->
+      <pathelement location="${lib.dir}/log4j-1.2.8.jar" />
+    </path>
+
+    <path id="test.compile.classpath">
+      <path refid="main.compile.classpath"/>
+      <!--
+      <fileset dir="${lib.dir}">
+        <include name="*.jar" />
+      </fileset>
+      -->
+      <pathelement location="${lib.dir}/junit-4.10.jar" />
+      <pathelement location="${main.build.dir}"/>
+    </path>
+
+    <path id="testrun.classpath">
+      <path refid="test.compile.classpath"/>
+      <pathelement location="${test.build.dir}"/>
+    </path>
+
+  </target>
+
+  <target name="prepare" depends="init">
+    <mkdir dir="${main.build.dir}"/>
+    <mkdir dir="${test.build.dir}"/>
+  </target>
+
+  <target name="compile.main" depends="prepare" description="Compiles the main source code">
+    <javac srcdir           ="${main.src.dir}"
+           destdir          ="${main.build.dir}"
+           debug            ="${compile.debug}"
+           optimize         ="${compile.optimize}"
+           target           ="${compile.target}"
+           source           ="${compile.source}"
+           deprecation      ="${compile.deprecation}"
+           includeAntRuntime="false">
+        <compilerarg value="-Xlint:all"/>
+        <classpath refid="main.compile.classpath"/>
+    </javac>
+  </target>
+
+  <target name="compile.test" depends="compile.main" description="Compiles the test source code">
+    <javac srcdir           ="${test.src.dir}"
+           destdir          ="${test.build.dir}"
+           debug            ="${compile.debug}"
+           optimize         ="${compile.optimize}"
+           target           ="${compile.target}"
+           source           ="${compile.source}"
+           deprecation      ="${compile.deprecation}"
+           includeAntRuntime="false">
+        <compilerarg value="-Xlint:all"/>
+        <classpath refid="test.compile.classpath"/>
+    </javac>
+  </target>
+
+  <target name="compile.all" depends="compile.test" description="Compiles all source code"/>
+
+  <target name="junit" depends="compile.test" description="runs junit testcases">
+    <mkdir dir="${junit.report.dir}"/>
+    <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+      <sysproperty key="configfile" value="${basedir}/config/helloworld-proj.conf"/>
+      <sysproperty key=" log4j.configuration" value="file:///${basedir}/config/helloworld-proj.log4j"/>
+      <sysproperty key=" log4j.debug" value="false"/> <!-- make it true to dig in log4j -->
+      <classpath refid="testrun.classpath"/>
+      <formatter type="xml" usefile="true"/> <!-- make usefile="false" if you want to see output and not just summary -->
+      <batchtest fork="true"
+                todir="${junit.report.dir}"> <!-- details of the test will send to Test-classname.txt file in this dir -->
+        <!-- make sure your testcases are written in <ClassName>Test format-->
+        <fileset dir="${test.src.dir}" includes="**/*Test.java"/>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="dist" depends="compile.main" description="generate the distribution" >
+    <jar jarfile="${dist.dir}/${ant.project.name}.jar">
+       <fileset dir="${main.build.dir}"/>
+       <!-- <fileset dir="${src.dir}"/> uncomment if you want to distribute source with jar file -->
+       <!-- <manifest>
+          <attribute name="Main-Class" value="${main.class}"/>
+       </manifest>
+	   -->
+    </jar>
+  </target>
+
+  <target name="clean" depends="init" description="clean up" >
+    <delete dir="${main.build.dir}"/>
+    <delete dir="${test.build.dir}"/>
+  </target>
+
+</project>
+

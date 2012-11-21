@@ -1,0 +1,13 @@
+log4j.rootLogger=debug, R
+
+log4j.appender.R=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.R.DatePattern='_'yyyy-MM-dd'_'HH
+log4j.appender.R.append=true
+log4j.appender.R.layout=org.apache.log4j.PatternLayout
+log4j.appender.R.File=/tmp/helloworld.log
+
+log4j.appender.R.layout=org.apache.log4j.PatternLayout
+log4j.appender.R.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss.SSS} [%32.32t] %-5p-%m%n
+
+# to change log level at logger level
+#log4j.logger.foo.bar.HelloWorld=info, R
